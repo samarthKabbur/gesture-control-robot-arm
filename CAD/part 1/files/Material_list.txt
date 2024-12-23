@@ -1,0 +1,30 @@
+Part				Pieces
+Berring 628			5
+Berring 6200		2
+M3 nut			44
+M3x8mm			16
+M3x10mm			12
+M3x12mm			27
+M3x16mm			22
+M3x20mm			2
+M3x30mm			2
+M3x40mm			2
+Servo 180 degrees 35Kg	3
+Servo 180 degrees 20Kg	3
+Servo 360 degrees		1
+10mm Steelball		10
+Arduino uno			1
+Sub_d 15pin male		1
+Sub_d 15pin female	1
+Capasitor 470UF 25V	2
+	
+Remote	
+Toggle on/off/on switch	1
+Toggle on/off switch	1
+On/On Switch		1
+10K sliding resistor	5
+Resistor 1K			5
+Capasitor 100n		5
+Wire 0,22 m2		A lot
+
+
