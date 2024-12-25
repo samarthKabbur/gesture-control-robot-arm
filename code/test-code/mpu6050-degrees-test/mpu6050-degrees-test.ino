@@ -39,13 +39,17 @@ void setup() {
   Wire.write(0x6B);// PWR_MGMT_1 register
   Wire.write(0); // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
-  Serial.begin(4800);
+  Serial.begin(19200);
   delay(1000);
 
 }
 void loop() {
   //get values for first mpu having address of 0x68
   GetMpuValue1(MPU1);
+  Serial.print("/");
+  GetMpuValue1(MPU2);
+  Serial.println();
+  delay(50);
 }
 
 void GetMpuValue1(const int MPU) {
@@ -59,7 +63,7 @@ void GetMpuValue1(const int MPU) {
   AcY1 = Wire.read() << 8 |  Wire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
   AcZ1 = Wire.read() << 8 | Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
 
-  Tmp1 = Wire.read() << 8 | Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+  // Tmp1 = Wire.read() << 8 | Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
 
   int xAng = map(AcX1, minVal, maxVal, -90, 90);
   int yAng = map(AcY1, minVal, maxVal, -90, 90);
@@ -73,16 +77,18 @@ void GetMpuValue1(const int MPU) {
   y = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   z = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
 
-  Serial.print("AngleX= ");
+  //Serial.print("AngleX= ");
   Serial.print(x);
-  Serial.print("\t");
+  Serial.print("/");
+  //Serial.print("\t");
 
-  Serial.print("AngleY= ");
+  //Serial.print("AngleY= ");
   Serial.print(y);
-  Serial.print("\t");
+  Serial.print("/");
+  //Serial.print("\t");
 
-  Serial.print("AngleZ= ");
+  //Serial.print("AngleZ= ");
   Serial.print(z);
-  Serial.print("\t");
-  Serial.println("-----------------------------------------");
+  //Serial.print("\t");
+  //Serial.println("-----------------------------------------");
 }

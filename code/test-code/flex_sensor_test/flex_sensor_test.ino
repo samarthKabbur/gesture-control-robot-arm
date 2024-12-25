@@ -17,7 +17,7 @@ void loop()
 {
   // Read the ADC, and calculate voltage and resistance from it
   int flexSensor = analogRead(flexPin);
-
+  
   Serial.println(flexSensor);
 
   delay(50);
