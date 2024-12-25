@@ -17,6 +17,7 @@ void draw() {
   translate(width/2, height/2, 0);
   background(233);
   textSize(22);
+  fill(0);
   text("Roll: " + int(roll) + "     Pitch: " + int(pitch), -100, 265);
   // Rotate the object
   rotateX(radians(-pitch));
