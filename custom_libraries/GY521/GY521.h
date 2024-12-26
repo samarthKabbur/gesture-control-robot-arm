@@ -589,7 +589,8 @@
 // But only if the AD0 pin is low.
 // Some sensor boards have AD0 high, and the
 // I2C address thus becomes 0x69.
-#define MPU6050_I2C_ADDRESS 0x68
+#define MPU6050_I2C_ADDRESS_1 0x68
+#define MPU6050_I2C_ADDRESS_2 0x69
 
 typedef union accel_t_gyro_union{
     struct{
@@ -624,18 +625,19 @@ class GY521 {
 public:
     GY521(); // Constructor
 
-    void initialize();
-    // void readSensorData();
-    void printAccelerometerData();
-    void printGyroscopeData();
-    void printTemperature();
+    void initialize(int mpu_addr);
+    void printAccelerometerData(int mpu_addr);
+    void printGyroscopeData(int mpu_addr);
+    void printTemperature(int mpu_addr);
+    void printFilteredAngle(int mpu_addr);
+    void printEverything(int mpu_addr);
     void set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro);
-    int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr);
-    void calibrate_sensors();
-    int MPU6050_read(int start, uint8_t *buffer, int size);
-    int MPU6050_write(int start, const uint8_t *pData, int size);
-    int MPU6050_write_reg(int reg, uint8_t data);
-    void printFilteredAngle();
+    int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr);
+    void calibrate_sensors(int mpu_addr);
+    int MPU6050_read(int start, uint8_t *buffer, int size, int mpu_addr);
+    int MPU6050_write(int start, const uint8_t *pData, int size, int mpu_addr);
+    int MPU6050_write_reg(int reg, uint8_t data, int mpu_addr);
+    
 
     /* #region Global Variable function declarations */
     void set_last_read_time(unsigned long value);
