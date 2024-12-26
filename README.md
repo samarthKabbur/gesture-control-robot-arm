@@ -1,16 +1,13 @@
-# Arduino Robotic Arm - Controlled by Hand Gestures
+# Gesture Controlled Robotic Arm
 
-This video is a tutorial on how to build a DIY Robotic Arm controlled by hand gestures. The Robotic arm is able to be controlled wirelessly from a distance as well as perform basic functions on its own.
+Prototype 1 of a basic gesture controlled robotic arm. Part of a series to create a robotic assisted surgery suite.
 
-Find the Full Instruction Tutorial on smartbuilds.io
-For more tutorials subscribe to my [YouTube channel](https://www.youtube.com/channel/UCGxwyXJWEarxh2XWqvygiIg)
+Project and code adapted from Eben Kouao's Arduino Robotic Arm - Controlled by Hand Gestures project
 
-Robot Arm: Thingiverse 3D Printed Robotic Arm - [credits: Wonder Tiger](https://www.thingiverse.com/thing:1748596)
+Semi custom library adapted from Krodal's singlefile code
 
-- Part 1: Gripper Parts
-- Part 2: Base and Turntable
-- Part 3: Robotic Core Arm
+CAD files adapted from LimpSquid's project series: [text](https://www.thingiverse.com/thing:1750025/files)
 
-Robotic Glove: Thingyverse Robotic Glove/ Gauntlet - [(credits: Roman 13)](https://www.thingiverse.com/thing:1982745)
-
-- Robotic Glove
+## TODO
+- Need to update circuit diagrams (MPU6050 SCL and SDA should be connected to A4 and A5)
+- Test the custom library on the Nano
