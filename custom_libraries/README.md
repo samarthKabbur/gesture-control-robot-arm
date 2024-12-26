@@ -1,0 +1,1 @@
+Copy these libraries into your Arduino Core Libraries file tree (typically located in Documents/Arduino/libraries)
