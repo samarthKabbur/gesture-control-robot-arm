@@ -630,8 +630,7 @@
 // lower address, so that has to be corrected.
 // The register part "reg" is only used internally, 
 // and are swapped in code.
-typedef union accel_t_gyro_union
-{
+typedef union accel_t_gyro_union{
   struct
   {
     uint8_t x_accel_h;
@@ -777,8 +776,7 @@ void calibrate_sensors() {
 }
 
 
-void setup()
-{      
+void setup(){      
   int error;
   uint8_t c;
 
@@ -829,8 +827,7 @@ void setup()
 }
 
 
-void loop()
-{
+void loop(){
   int error;
   double dT;
   accel_t_gyro_union accel_t_gyro;
@@ -839,39 +836,39 @@ void loop()
   Serial.println(F(""));
   Serial.println(F("MPU-6050"));
   */
-  
+
   // Read the raw values.
   error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
-  
+
   // Get the time of reading for rotation computations
   unsigned long t_now = millis();
    
-/*
-  Serial.print(F("Read accel, temp and gyro, error = "));
-  Serial.println(error,DEC);
-  
+  /*
+    Serial.print(F("Read accel, temp and gyro, error = "));
+    Serial.println(error,DEC);
+    
 
-  // Print the raw acceleration values
-  Serial.print(F("accel x,y,z: "));
-  Serial.print(accel_t_gyro.value.x_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.y_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.z_accel, DEC);
-  Serial.println(F(""));
-*/ 
+    // Print the raw acceleration values
+    Serial.print(F("accel x,y,z: "));
+    Serial.print(accel_t_gyro.value.x_accel, DEC);
+    Serial.print(F(", "));
+    Serial.print(accel_t_gyro.value.y_accel, DEC);
+    Serial.print(F(", "));
+    Serial.print(accel_t_gyro.value.z_accel, DEC);
+    Serial.println(F(""));
+  */ 
 
-  // The temperature sensor is -40 to +85 degrees Celsius.
-  // It is a signed integer.
-  // According to the datasheet: 
-  //   340 per degrees Celsius, -512 at 35 degrees.
-  // At 0 degrees: -512 - (340 * 35) = -12412
-/*  
-  Serial.print(F("temperature: "));
-  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
-  Serial.print(dT, 3);
-  Serial.print(F(" degrees Celsius"));
-  Serial.println(F(""));
+    // The temperature sensor is -40 to +85 degrees Celsius.
+    // It is a signed integer.
+    // According to the datasheet: 
+    //   340 per degrees Celsius, -512 at 35 degrees.
+    // At 0 degrees: -512 - (340 * 35) = -12412
+  /*  
+    Serial.print(F("temperature: "));
+    dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+    Serial.print(dT, 3);
+    Serial.print(F(" degrees Celsius"));
+    Serial.println(F(""));
   
 
   // Print the raw gyro values.
@@ -883,7 +880,7 @@ void loop()
   Serial.print(accel_t_gyro.value.z_gyro, DEC);
   Serial.print(F(", "));
   Serial.println(F(""));
-*/
+  */
 
   // Convert gyro values to degrees/sec
   float FS_SEL = 131;
@@ -905,7 +902,7 @@ void loop()
   
   // Get angle values from accelerometer
   float RADIANS_TO_DEGREES = 180/3.14159;
-//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  //  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
   float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
   float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
 
@@ -973,8 +970,7 @@ void loop()
 // Only this function is used to read. 
 // There is no function for a single byte.
 //
-int MPU6050_read(int start, uint8_t *buffer, int size)
-{
+int MPU6050_read(int start, uint8_t *buffer, int size){
   int i, n, error;
 
   Wire.beginTransmission(MPU6050_I2C_ADDRESS);
@@ -1019,8 +1015,7 @@ int MPU6050_read(int start, uint8_t *buffer, int size)
 //   int data = 0;        // the data to write
 //   MPU6050_write (MPU6050_PWR_MGMT_1, &c, 1);
 //
-int MPU6050_write(int start, const uint8_t *pData, int size)
-{
+int MPU6050_write(int start, const uint8_t *pData, int size){
   int n, error;
 
   Wire.beginTransmission(MPU6050_I2C_ADDRESS);
@@ -1047,8 +1042,7 @@ int MPU6050_write(int start, const uint8_t *pData, int size)
 // function, and it is only a convenient function
 // to make it easier to write a single register.
 //
-int MPU6050_write_reg(int reg, uint8_t data)
-{
+int MPU6050_write_reg(int reg, uint8_t data){
   int error;
 
   error = MPU6050_write(reg, &data, 1);

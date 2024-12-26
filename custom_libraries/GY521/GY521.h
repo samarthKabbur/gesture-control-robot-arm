@@ -629,8 +629,15 @@ public:
     void printAccelerometerData();
     void printGyroscopeData();
     void printTemperature();
+    void set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro);
+    int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr);
+    void calibrate_sensors();
+    int MPU6050_read(int start, uint8_t *buffer, int size);
+    int MPU6050_write(int start, const uint8_t *pData, int size);
+    int MPU6050_write_reg(int reg, uint8_t data);
+    void printFilteredAngle();
 
-    // Global Variable function declarations
+    /* #region Global Variable function declarations */
     void set_last_read_time(unsigned long value);
     unsigned long get_last_read_time();
 
@@ -669,6 +676,7 @@ public:
 
     void set_base_z_gyro(float value);
     float get_base_z_gyro();
+    /* #endregion */
 
 private:
     int readWord(int address, int reg);
