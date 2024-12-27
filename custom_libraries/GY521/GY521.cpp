@@ -308,7 +308,7 @@ void GY521::initialize(int mpu_addr) {
     uint8_t c;
 
 
-    Serial.begin(19200);
+    // Serial.begin(19200);
     /*
     Serial.println(F("InvenSense MPU-6050"));
     Serial.println(F("June 2012"));
@@ -366,7 +366,6 @@ void GY521::printAccelerometerData(int mpu_addr) {
     // Serial.print("Accel Z: ");
     // Serial.println(wordToScaledFloat(accelZ, 16384.0));
     int error;
-    double dT;
     accel_t_gyro_union accel_t_gyro;
 
     // Read the raw values.
@@ -431,7 +430,6 @@ void GY521::printGyroscopeData(int mpu_addr) {
     // Serial.print("Gyro Z: ");
     // Serial.println(wordToScaledFloat(gyroZ, 131.0));
     int error;
-    double dT;
     accel_t_gyro_union accel_t_gyro;
 
     /*
@@ -527,8 +525,7 @@ void GY521::printTemperature(int mpu_addr) {
 }
 
 void GY521::printFilteredAngle(int mpu_addr){
-        int error;
-    double dT;
+    int error;
     accel_t_gyro_union accel_t_gyro;
 
     /*
@@ -613,7 +610,6 @@ void GY521::printFilteredAngle(int mpu_addr){
 
 void GY521::printEverything(int mpu_addr){
     int error;
-    double dT;
     accel_t_gyro_union accel_t_gyro;
 
     /*
@@ -692,6 +688,75 @@ void GY521::printEverything(int mpu_addr){
     Serial.print(angle_z, 2);
     Serial.println(F(""));
 
+
+
+    // Delay so we don't swamp the serial port
+    // delay(5);
+}
+
+SensorData_t GY521::returnEverything(int mpu_addr){
+    int error;
+    accel_t_gyro_union accel_t_gyro;
+    SensorData_t data;
+
+    /*
+    Serial.println(F(""));
+    Serial.println(F("MPU-6050"));
+    */
+
+    // Read the raw values.
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+
+    // Get the time of reading for rotation computations
+    unsigned long t_now = millis();
+
+    // Convert gyro values to degrees/sec
+    float FS_SEL = 131;
+    float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro)/FS_SEL;
+    float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro)/FS_SEL;
+    float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro)/FS_SEL;
+
+
+    // Get raw acceleration values
+    //float G_CONVERT = 16384;
+    float accel_x = accel_t_gyro.value.x_accel;
+    float accel_y = accel_t_gyro.value.y_accel;
+    float accel_z = accel_t_gyro.value.z_accel;
+
+    // Get angle values from accelerometer
+    float RADIANS_TO_DEGREES = 180/3.14159;
+    //  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+    float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+    float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+    float accel_angle_z = 0;
+
+    // Compute the (filtered) gyro angles
+    float dt =(t_now - get_last_read_time())/1000.0;
+    float gyro_angle_x = gyro_x*dt + get_last_x_angle();
+    float gyro_angle_y = gyro_y*dt + get_last_y_angle();
+    float gyro_angle_z = gyro_z*dt + get_last_z_angle();
+
+    // Compute the drifting gyro angles
+    float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle();
+    float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle();
+    float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle();
+
+    // Apply the complementary filter to figure out the change in angle - choice of alpha is
+    // estimated now.  Alpha depends on the sampling rate...
+    float alpha = 0.96;
+    float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+    float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+    float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+
+    // Update the saved data with the latest values
+    set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
+
+    data.dt = dt;
+    data.accel_angles = {accel_angle_x, accel_angle_y, accel_angle_z};
+    data.unfiltered_gyro_angles = {unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z};
+    data.filtered_angles = {angle_x, angle_y, angle_z};
+    return data;
     // Delay so we don't swamp the serial port
     // delay(5);
 }

@@ -1,7 +1,9 @@
 #ifndef GY521_H
 #define GY521_H
 
+// @ts-ignore
 #include <Arduino.h>
+// @ts-ignore
 #include <Wire.h>
 
 // The name of the sensor is "MPU-6050".
@@ -620,6 +622,31 @@ typedef union accel_t_gyro_union{
     } value;
 };
 
+typedef struct AccelAngles{
+    float x;
+    float y;
+    float z;
+} AccelAngles_t;
+
+typedef struct GyroAngles{
+    float x;
+    float y;
+    float z;
+} GyroAngles_t;
+
+typedef struct FilteredAngles{
+    float x;
+    float y;
+    float z;
+} FilteredAngles_t;
+
+typedef struct SensorData{
+    float dt;
+    AccelAngles_t accel_angles;
+    GyroAngles_t unfiltered_gyro_angles;
+    FilteredAngles_t filtered_angles;
+} SensorData_t;
+
 
 class GY521 {
 public:
@@ -631,6 +658,7 @@ public:
     void printTemperature(int mpu_addr);
     void printFilteredAngle(int mpu_addr);
     void printEverything(int mpu_addr);
+    SensorData_t returnEverything(int mpu_addr);
     void set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro);
     int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr);
     void calibrate_sensors(int mpu_addr);
