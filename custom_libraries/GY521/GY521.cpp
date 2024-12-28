@@ -20,13 +20,14 @@ GY521::GY521()
         base_z_accel(0),
         base_x_gyro(0),
         base_y_gyro(0),
-        base_z_gyro(0)
+        base_z_gyro(0),
+        mpu_addr(0x68)      // Default address for the MPU6050 when AD0 pin is pulled low.
 {
     // Initialization tasks if needed
 }
 
 // Use the #region folding for VS Code extension to enable folding
-/* #region Setters and Getters for Global Variables */
+/* #region Setters and Getters for Global-Private Variables */
 
     // last_read_time
 void GY521::set_last_read_time(unsigned long value){
@@ -132,6 +133,13 @@ float GY521::get_base_z_gyro(){
     return base_z_gyro;
 }
 
+void GY521::set_mpu_addr(int value){
+    mpu_addr = value;
+}
+int GY521::get_mpu_addr(){
+    return mpu_addr;
+}
+
 /* #endregion */
 
 void GY521::set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro){
@@ -144,7 +152,7 @@ void GY521::set_last_read_angle_data(unsigned long time, float x, float y, float
     set_last_gyro_z_angle(z_gyro);
 }
 
-int GY521::read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr) {
+int GY521::read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr) {
   // Read the raw values.
   // Read 14 bytes at once, 
   // containing acceleration, temperature and gyro.
@@ -154,7 +162,7 @@ int GY521::read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr) {
 
   accel_t_gyro_union* accel_t_gyro = (accel_t_gyro_union *) accel_t_gyro_ptr;
 
-  int error = MPU6050_read(MPU6050_ACCEL_XOUT_H, (uint8_t *) accel_t_gyro, sizeof(*accel_t_gyro), mpu_addr);
+  int error = MPU6050_read(MPU6050_ACCEL_XOUT_H, (uint8_t *) accel_t_gyro, sizeof(*accel_t_gyro));
 
   // Swap all high and low bytes.
   // After this, the registers values are swapped, 
@@ -176,7 +184,7 @@ int GY521::read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr) {
     
 // The sensor should be motionless on a horizontal surface 
 //  while calibration is happening
-void GY521::calibrate_sensors(int mpu_addr) {
+void GY521::calibrate_sensors() {
     int                   num_readings = 10;
     float                 x_accel = 0;
     float                 y_accel = 0;
@@ -188,11 +196,11 @@ void GY521::calibrate_sensors(int mpu_addr) {
     //Serial.println("Starting Calibration");
 
     // Discard the first set of values read from the IMU
-    read_gyro_accel_vals((uint8_t *) &accel_t_gyro, mpu_addr);
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
 
     // Read and average the raw values from the IMU
     for (int i = 0; i < num_readings; i++) {
-        read_gyro_accel_vals((uint8_t *) &accel_t_gyro, mpu_addr);
+        read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
         x_accel += accel_t_gyro.value.x_accel;
         y_accel += accel_t_gyro.value.y_accel;
         z_accel += accel_t_gyro.value.z_accel;
@@ -218,10 +226,10 @@ void GY521::calibrate_sensors(int mpu_addr) {
   //Serial.println("Finishing Calibration");
 }
 
-int GY521::MPU6050_read(int start, uint8_t *buffer, int size, int mpu_addr){
+int GY521::MPU6050_read(int start, uint8_t *buffer, int size){
     int i, n, error;
 
-    Wire.beginTransmission(mpu_addr);
+    Wire.beginTransmission(get_mpu_addr());
     n = Wire.write(start);
     if (n != 1)
     return (-10);
@@ -231,7 +239,7 @@ int GY521::MPU6050_read(int start, uint8_t *buffer, int size, int mpu_addr){
     return (n);
 
     // Third parameter is true: relase I2C-bus after data is read.
-    Wire.requestFrom(mpu_addr, size, true);
+    Wire.requestFrom(get_mpu_addr(), size, true);
     i = 0;
     while(Wire.available() && i<size)
     {
@@ -262,10 +270,10 @@ int GY521::MPU6050_read(int start, uint8_t *buffer, int size, int mpu_addr){
 //   int data = 0;        // the data to write
 //   MPU6050_write (MPU6050_PWR_MGMT_1, &c, 1);
 //
-int GY521::MPU6050_write(int start, const uint8_t *pData, int size, int mpu_addr){
+int GY521::MPU6050_write(int start, const uint8_t *pData, int size){
     int n, error;
 
-    Wire.beginTransmission(mpu_addr);
+    Wire.beginTransmission(get_mpu_addr());
     n = Wire.write(start);        // write the start address
     if (n != 1)
     return (-20);
@@ -289,16 +297,16 @@ int GY521::MPU6050_write(int start, const uint8_t *pData, int size, int mpu_addr
 // function, and it is only a convenient function
 // to make it easier to write a single register.
 //
-int GY521::MPU6050_write_reg(int reg, uint8_t data, int mpu_addr){
+int GY521::MPU6050_write_reg(int reg, uint8_t data){
     int error;
 
-    error = MPU6050_write(reg, &data, 1, mpu_addr);
+    error = MPU6050_write(reg, &data, 1);
 
     return (error);
 }
 
 // Initialize the sensor
-void GY521::initialize(int mpu_addr) {
+void GY521::initialize() {
     // Wire.beginTransmission(0x68); // MPU-6050 I2C address
     // Wire.write(0x6B); // PWR_MGMT_1 register
     // Wire.write(0);    // Wake up the MPU-6050
@@ -324,7 +332,7 @@ void GY521::initialize(int mpu_addr) {
     //    The device is in sleep mode.
     //
 
-    error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1, mpu_addr);
+    error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
     /*
     Serial.print(F("WHO_AM_I : "));
     Serial.print(c,HEX);
@@ -337,7 +345,7 @@ void GY521::initialize(int mpu_addr) {
     // That bit has to be cleared, since the sensor
     // is in sleep mode at power-up. Even if the
     // bit reads '0'.
-    error = MPU6050_read (MPU6050_PWR_MGMT_2, &c, 1, mpu_addr);
+    error = MPU6050_read (MPU6050_PWR_MGMT_2, &c, 1);
     /*
     Serial.print(F("PWR_MGMT_2 : "));
     Serial.print(c,HEX);
@@ -346,15 +354,15 @@ void GY521::initialize(int mpu_addr) {
     */
 
     // Clear the 'sleep' bit to start the sensor.
-    MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0, mpu_addr);
+    MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
 
     //Initialize the angles
-    calibrate_sensors(mpu_addr);  
+    calibrate_sensors();  
     set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0);
 }
 
 // Read and print accelerometer data
-void GY521::printAccelerometerData(int mpu_addr) {
+void GY521::printAccelerometerData() {
     // int accelX = readWord(0x68, 0x3B);
     // int accelY = readWord(0x68, 0x3D);
     // int accelZ = readWord(0x68, 0x3F);
@@ -369,7 +377,7 @@ void GY521::printAccelerometerData(int mpu_addr) {
     accel_t_gyro_union accel_t_gyro;
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -418,7 +426,7 @@ void GY521::printAccelerometerData(int mpu_addr) {
 }
 
 // Read and print gyroscope data
-void GY521::printGyroscopeData(int mpu_addr) {
+void GY521::printGyroscopeData() {
     // int gyroX = readWord(0x68, 0x43);
     // int gyroY = readWord(0x68, 0x45);
     // int gyroZ = readWord(0x68, 0x47);
@@ -438,7 +446,7 @@ void GY521::printGyroscopeData(int mpu_addr) {
     */
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -490,7 +498,7 @@ void GY521::printGyroscopeData(int mpu_addr) {
 }
 
 // Read and print temperature
-void GY521::printTemperature(int mpu_addr) {
+void GY521::printTemperature() {
     // int tempRaw = readWord(0x68, 0x41);
     // float temperature = tempRaw / 340.0 + 36.53; // Formula from MPU-6050 datasheet
 
@@ -507,7 +515,7 @@ void GY521::printTemperature(int mpu_addr) {
     */
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -524,7 +532,7 @@ void GY521::printTemperature(int mpu_addr) {
     Serial.println(F(""));
 }
 
-void GY521::printFilteredAngle(int mpu_addr){
+void GY521::printFilteredAngle(){
     int error;
     accel_t_gyro_union accel_t_gyro;
 
@@ -534,7 +542,7 @@ void GY521::printFilteredAngle(int mpu_addr){
     */
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -608,7 +616,7 @@ void GY521::printFilteredAngle(int mpu_addr){
     // delay(5);
 }
 
-void GY521::printEverything(int mpu_addr){
+void GY521::printMPUData(){
     int error;
     accel_t_gyro_union accel_t_gyro;
 
@@ -618,7 +626,7 @@ void GY521::printEverything(int mpu_addr){
     */
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -694,7 +702,7 @@ void GY521::printEverything(int mpu_addr){
     // delay(5);
 }
 
-SensorData_t GY521::returnEverything(int mpu_addr){
+SensorData_t GY521::returnMPUData(){
     int error;
     accel_t_gyro_union accel_t_gyro;
     SensorData_t data;
@@ -705,7 +713,7 @@ SensorData_t GY521::returnEverything(int mpu_addr){
     */
 
     // Read the raw values.
-    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro, mpu_addr);
+    error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
 
     // Get the time of reading for rotation computations
     unsigned long t_now = millis();
@@ -757,8 +765,6 @@ SensorData_t GY521::returnEverything(int mpu_addr){
     data.unfiltered_gyro_angles = {unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z};
     data.filtered_angles = {angle_x, angle_y, angle_z};
     return data;
-    // Delay so we don't swamp the serial port
-    // delay(5);
 }
 
 // Helper to read a word (two bytes) from the sensor

@@ -1,9 +1,7 @@
 #ifndef GY521_H
 #define GY521_H
 
-// @ts-ignore
 #include <Arduino.h>
-// @ts-ignore
 #include <Wire.h>
 
 // The name of the sensor is "MPU-6050".
@@ -652,19 +650,19 @@ class GY521 {
 public:
     GY521(); // Constructor
 
-    void initialize(int mpu_addr);
-    void printAccelerometerData(int mpu_addr);
-    void printGyroscopeData(int mpu_addr);
-    void printTemperature(int mpu_addr);
-    void printFilteredAngle(int mpu_addr);
-    void printEverything(int mpu_addr);
-    SensorData_t returnEverything(int mpu_addr);
+    void initialize();
+    void printAccelerometerData();
+    void printGyroscopeData();
+    void printTemperature();
+    void printFilteredAngle();
+    void printMPUData();
+    SensorData_t returnMPUData();
     void set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro);
-    int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr, int mpu_addr);
-    void calibrate_sensors(int mpu_addr);
-    int MPU6050_read(int start, uint8_t *buffer, int size, int mpu_addr);
-    int MPU6050_write(int start, const uint8_t *pData, int size, int mpu_addr);
-    int MPU6050_write_reg(int reg, uint8_t data, int mpu_addr);
+    int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr);
+    void calibrate_sensors();
+    int MPU6050_read(int start, uint8_t *buffer, int size);
+    int MPU6050_write(int start, const uint8_t *pData, int size);
+    int MPU6050_write_reg(int reg, uint8_t data);
     
 
     /* #region Global Variable function declarations */
@@ -706,6 +704,9 @@ public:
 
     void set_base_z_gyro(float value);
     float get_base_z_gyro();
+
+    void set_mpu_addr(int value);
+    int get_mpu_addr();
     /* #endregion */
 
 private:
@@ -731,6 +732,9 @@ private:
     float    base_x_gyro;
     float    base_y_gyro;
     float    base_z_gyro;
+
+        // MPU address (local to the GY521 object/class)
+    int mpu_addr;
 };
 
 #endif // GY521_H
