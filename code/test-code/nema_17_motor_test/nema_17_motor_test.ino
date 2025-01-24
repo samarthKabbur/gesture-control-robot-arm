@@ -7,8 +7,8 @@
 ******************************************************************************/
 
 // Define pin connections & motor's steps per revolution
-const int dirPin = 4;
-const int stepPin = 5;
+const int dirPin = 2;
+const int stepPin = 3;
 const int stepsPerRevolution = 200;
 int stepDelay = 9500;
 void setup()
@@ -16,12 +16,13 @@ void setup()
   // Declare pins as Outputs
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
+  Serial.begin(9600);
 }
 void loop()
 {
   baseRotateLeft();
   baseRotateRight();
-
+  Serial.println("motor moving");
 }
 
 void baseRotateLeft() {
