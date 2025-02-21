@@ -32,9 +32,9 @@ void loop() {
   if (pointer.isBent()){
     Serial.println("pointer bent");
   }
-  if (middle.isBent()){
-    Serial.println("middle bent");
-  }
+  // if (middle.isBent()){
+  //   Serial.println("middle bent");
+  // }
 
 
   delay(50);
