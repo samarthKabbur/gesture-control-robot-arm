@@ -14,6 +14,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(38400);
   mySerial.begin(38400);
+
   flex.initialize();
   flex.setThreshold(100);
   flex.set_flexPin(flexPin);
@@ -25,12 +26,15 @@ void loop() {
   // Serial.write('1');
   // delay(1000);
   // Serial.write('0');
-  if (flex.isBent()){
-    mySerial.write('1');
-    Serial.println("Sending bent");
-  } else {
-    mySerial.write('0');
+  if(Serial.available() > 0){
+    mySerial.write(Serial.read());
   }
+  // if (flex.isBent()){
+  //   mySerial.write('1');
+  //   Serial.println("Sending bent");
+  // } else {
+  //   mySerial.write('0');
+  // }
 
   delay(50);
 }
